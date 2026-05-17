@@ -1,172 +1,185 @@
-// utils.js — Shared utility functions used across all pages
+/* utils.js — CyberNova shared utilities */
 
-// ─── BACKEND API BASE URL ─────────────────────────────────
-// Change this when deploying to production
-const API_BASE = 'http://localhost:5000/api';
-
-// ─── TOAST NOTIFICATIONS ─────────────────────────────────
-function showToast(message, type = 'info', duration = 3500) {
-  let container = document.querySelector('.toast-container');
+// ============================================================
+// TOAST SYSTEM (replaces all alert() popups)
+// ============================================================
+window.showToast = function(message, type = 'info', duration = 3500) {
+  let container = document.getElementById('toast-container');
   if (!container) {
     container = document.createElement('div');
-    container.className = 'toast-container';
+    container.id = 'toast-container';
     document.body.appendChild(container);
   }
 
-  const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+  const icons = {
+    success: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,
+    error: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+    warning: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    info: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+  };
 
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${icons[type]}</span><span>${message}</span>`;
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type] || icons.info}</span>
+    <span style="flex:1">${message}</span>
+    <button class="toast-close" onclick="this.parentElement.remove()" aria-label="Close">✕</button>
+  `;
 
   container.appendChild(toast);
+  requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
 
-  // Auto-remove after duration
   setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => toast.remove(), 300);
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 400);
   }, duration);
-}
+};
 
-// ─── LOADING SPINNER ─────────────────────────────────────
-function showLoader() {
-  let overlay = document.querySelector('.spinner-overlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.className = 'spinner-overlay';
-    overlay.innerHTML = '<div class="spinner"></div>';
-    document.body.appendChild(overlay);
-  }
-  overlay.classList.add('active');
-}
+// ============================================================
+// AUTH HELPERS
+// ============================================================
+window.getUser = function() {
+  try {
+    return JSON.parse(localStorage.getItem('cn_user'));
+  } catch { return null; }
+};
 
-function hideLoader() {
-  const overlay = document.querySelector('.spinner-overlay');
-  if (overlay) overlay.classList.remove('active');
-}
-
-// ─── DARK MODE TOGGLE ─────────────────────────────────────
-function initDarkMode() {
-  const saved = localStorage.getItem('theme') || 'dark';
-  if (saved === 'light') document.body.classList.add('light-mode');
-
-  const toggleBtn = document.getElementById('themeToggle');
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      document.body.classList.toggle('light-mode');
-      const current = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-      localStorage.setItem('theme', current);
-    });
-  }
-}
-
-// ─── AUTH GUARD ───────────────────────────────────────────
-// Redirect to login if not authenticated
-function requireAuth() {
-  const user = localStorage.getItem('cn_user');
+window.requireAuth = function() {
+  const user = window.getUser();
   if (!user) {
     window.location.href = 'login.html';
+    return null;
   }
-  return JSON.parse(user || '{}');
-}
+  return user;
+};
 
-// ─── LOGOUT ──────────────────────────────────────────────
-function logout() {
+window.logout = function() {
   localStorage.removeItem('cn_user');
-  showToast('Logged out successfully', 'info', 1500);
-  setTimeout(() => (window.location.href = 'login.html'), 1500);
-}
+  window.location.href = 'login.html';
+};
 
-// ─── FORMAT DATE ─────────────────────────────────────────
-function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('en-IN', {
-    day: '2-digit', month: 'short', year: 'numeric'
-  });
-}
+// ============================================================
+// POPULATE USER UI
+// ============================================================
+window.populateUserUI = function() {
+  const user = window.getUser();
+  if (!user) return;
 
-// ─── STOCK STATUS BADGE HTML ─────────────────────────────
-function stockBadge(status) {
-  const map = {
-    'In Stock':     '<span class="badge badge-success">● In Stock</span>',
-    'Low Stock':    '<span class="badge badge-warning">⚠ Low Stock</span>',
-    'Out of Stock': '<span class="badge badge-danger">✕ Out of Stock</span>',
+  const initials = (user.name || user.username || 'U').slice(0, 2).toUpperCase();
+  document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name || user.username);
+  document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = user.role || '');
+  document.querySelectorAll('[data-user-avatar]').forEach(el => el.textContent = initials);
+};
+
+// ============================================================
+// LIVE CLOCK
+// ============================================================
+window.startClock = function(selector = '[data-clock]') {
+  const update = () => {
+    const els = document.querySelectorAll(selector);
+    const now = new Date().toLocaleString('en-US', {
+      month: 'numeric', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
+    });
+    els.forEach(el => el.textContent = now);
   };
-  return map[status] || status;
-}
+  update();
+  setInterval(update, 1000);
+};
 
-// ─── API FETCH HELPER ────────────────────────────────────
-async function apiCall(endpoint, method = 'GET', body = null) {
-  showLoader();
-  try {
-    const options = {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-    };
-    if (body) options.body = JSON.stringify(body);
+// ============================================================
+// API HELPER
+// ============================================================
+window.api = {
+  BASE: '/api',
 
-    const res = await fetch(`${API_BASE}${endpoint}`, options);
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || 'Something went wrong');
+  async request(path, options = {}) {
+    try {
+      const res = await fetch(this.BASE + path, {
+        headers: { 'Content-Type': 'application/json', ...options.headers },
+        ...options
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || `HTTP ${res.status}`);
+      return data;
+    } catch (err) {
+      console.error('API error:', err);
+      throw err;
     }
+  },
 
-    return data;
-  } catch (err) {
-    showToast(err.message, 'error');
-    throw err;
-  } finally {
-    hideLoader();
-  }
-}
+  get(path) { return this.request(path); },
+  post(path, body) { return this.request(path, { method: 'POST', body: JSON.stringify(body) }); },
+  put(path, body) { return this.request(path, { method: 'PUT', body: JSON.stringify(body) }); },
+  delete(path) { return this.request(path, { method: 'DELETE' }); }
+};
 
-// ─── CONFIRM MODAL ────────────────────────────────────────
-function showConfirm(title, message, onConfirm) {
-  let overlay = document.getElementById('confirmModal');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'confirmModal';
-    overlay.className = 'modal-overlay';
-    overlay.innerHTML = `
-      <div class="modal">
-        <h3 id="confirmTitle"></h3>
-        <p id="confirmMessage"></p>
-        <div class="modal-actions">
-          <button class="btn btn-secondary" id="confirmNo">No, Cancel</button>
-          <button class="btn btn-primary" id="confirmYes">Yes, Confirm</button>
-        </div>
-      </div>`;
-    document.body.appendChild(overlay);
-  }
-
-  document.getElementById('confirmTitle').textContent = title;
-  document.getElementById('confirmMessage').textContent = message;
-  overlay.classList.add('active');
-
-  const yes = document.getElementById('confirmYes');
-  const no  = document.getElementById('confirmNo');
-
-  const closeModal = () => overlay.classList.remove('active');
-
-  yes.onclick = () => { closeModal(); onConfirm(); };
-  no.onclick  = closeModal;
-  overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
-}
-
-// ─── INIT ON EVERY PAGE ──────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  initDarkMode();
-
-  // Set active sidebar link
-  const currentPage = window.location.pathname.split('/').pop();
-  document.querySelectorAll('.nav-item').forEach(link => {
-    if (link.getAttribute('href') === currentPage) {
-      link.classList.add('active');
-    }
+// ============================================================
+// ACTIVE NAV HIGHLIGHT
+// ============================================================
+window.setActiveNav = function() {
+  const page = location.pathname.split('/').pop() || 'dashboard.html';
+  document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+    item.classList.toggle('active', item.dataset.page === page);
   });
+};
 
-  // Logout button
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) logoutBtn.addEventListener('click', logout);
+// ============================================================
+// TYPE BADGE HELPER
+// ============================================================
+window.typeBadge = function(type) {
+  const t = (type || 'unknown').toLowerCase();
+  const map = {
+    storage: 'storage', hardware: 'hardware',
+    software: 'software', network: 'network'
+  };
+  const cls = map[t] || 'storage';
+  return `<span class="badge ${cls}"><span class="badge-dot"></span>${type}</span>`;
+};
+
+window.statusBadge = function(status) {
+  const s = (status || '').toLowerCase();
+  const cls = s.replace(/\s+/g, '-');
+  return `<span class="status-badge ${cls}"><span class="badge-dot"></span>${status}</span>`;
+};
+
+window.priorityBadge = function(priority) {
+  const p = (priority || '').toLowerCase();
+  return `<span class="priority-badge ${p}">${priority}</span>`;
+};
+
+// ============================================================
+// CONFIRM DIALOG (no alert/confirm)
+// ============================================================
+window.confirmDialog = function(message, onConfirm) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:380px;text-align:center;">
+      <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#ff4757;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;">Confirm Action</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:24px;">${message}</p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="btn btn-ghost" id="dlg-cancel">Cancel</button>
+        <button class="btn btn-danger" id="dlg-confirm">Delete</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#dlg-cancel').onclick = () => overlay.remove();
+  overlay.querySelector('#dlg-confirm').onclick = () => {
+    overlay.remove();
+    onConfirm();
+  };
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+};
+
+// Auto-init on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  window.populateUserUI();
+  window.startClock();
+  window.setActiveNav();
 });
