@@ -1,86 +1,39 @@
-// addItem.js — Handles the Add Item form
+import mongoose from 'mongoose';
 
-document.addEventListener('DOMContentLoaded', () => {
-  requireAuth(); // Redirect to login if not authenticated
+const itemSchema = new mongoose.Schema(
+  {
+    itemId:            { type: String, required: true, unique: true, trim: true },
+    itemName:          { type: String, required: true, trim: true },
+    description:       { type: String, default: '' },
+    itemType: {
+      type: String,
+      required: true,
+      enum: ['Electronics','Furniture','Stationery','Raw Material',
+             'Finished Goods','Consumables','Machinery','Other'],
+    },
+    quantityReceived:  { type: Number, required: true, min: 0 },
+    usedQuantity:      { type: Number, default: 0, min: 0 },
+    remainingQuantity: { type: Number, default: 0 },
+    dateAdded:         { type: Date, default: Date.now },
+    stockStatus: {
+      type: String,
+      enum: ['In Stock', 'Low Stock', 'Out of Stock'],
+      default: 'In Stock',
+    },
+  },
+  { timestamps: true }
+);
 
-  // Set today's date as default
-  document.getElementById('dateAdded').valueAsDate = new Date();
+itemSchema.pre('save', function (next) {
+  this.remainingQuantity = this.quantityReceived - this.usedQuantity;
 
-  // Save button
-  document.getElementById('saveBtn').addEventListener('click', handleSave);
+  if (this.remainingQuantity <= 0)       this.stockStatus = 'Out of Stock';
+  else if (this.remainingQuantity <= 10) this.stockStatus = 'Low Stock';
+  else                                   this.stockStatus = 'In Stock';
 
-  // Reset button
-  document.getElementById('resetBtn').addEventListener('click', () => {
-    ['itemId','itemName','itemType','quantityReceived','description'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-    document.getElementById('dateAdded').valueAsDate = new Date();
-    clearFormErrors();
-    showToast('Form cleared', 'info');
-  });
+  next();
 });
 
-async function handleSave() {
-  clearFormErrors();
+const Item = mongoose.models.Item || mongoose.model('Item', itemSchema);
 
-  // Collect values
-  const itemId           = document.getElementById('itemId').value.trim();
-  const itemName         = document.getElementById('itemName').value.trim();
-  const itemType         = document.getElementById('itemType').value;
-  const quantityReceived = parseInt(document.getElementById('quantityReceived').value);
-  const dateAdded        = document.getElementById('dateAdded').value;
-  const description      = document.getElementById('description').value.trim();
-
-  // Validate
-  let valid = true;
-
-  if (!itemId) { showErr('itemIdErr', 'Item ID is required'); valid = false; }
-  if (!itemName) { showErr('itemNameErr', 'Item Name is required'); valid = false; }
-  if (!itemType) { showErr('itemTypeErr', 'Please select an item type'); valid = false; }
-  if (!quantityReceived || quantityReceived < 1) {
-    showErr('qtyErr', 'Quantity must be at least 1'); valid = false;
-  }
-  if (!dateAdded) { showErr('dateErr', 'Please select a date'); valid = false; }
-
-  if (!valid) return;
-
-  // Show confirmation popup before saving
-  showConfirm(
-    '➕ Confirm Add Item',
-    `Add "${itemName}" (ID: ${itemId}) with quantity ${quantityReceived} to inventory?`,
-    async () => {
-      try {
-        const result = await apiCall('/items', 'POST', {
-          itemId, itemName, description,
-          itemType, quantityReceived, dateAdded
-        });
-
-        showToast(result.message, 'success');
-
-        // Clear form after successful save
-        setTimeout(() => {
-          ['itemId','itemName','itemType','quantityReceived','description'].forEach(id => {
-            document.getElementById(id).value = '';
-          });
-          document.getElementById('dateAdded').valueAsDate = new Date();
-        }, 500);
-
-      } catch (err) {
-        // Error is already shown via showToast in apiCall
-      }
-    }
-  );
-}
-
-function showErr(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.classList.remove('hidden');
-}
-
-function clearFormErrors() {
-  ['itemIdErr','itemNameErr','itemTypeErr','qtyErr','dateErr'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.textContent = ''; el.classList.add('hidden'); }
-  });
-}
+export default Item;

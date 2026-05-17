@@ -2,6 +2,7 @@
   "name": "cybernova-inventory",
   "version": "1.0.0",
   "description": "CyberNova Inventory Tracker - Full Stack on Vercel",
+  "type": "module",
   "scripts": {
     "dev": "vercel dev"
   },

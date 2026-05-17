@@ -1,11 +1,4 @@
-// Item.js — MongoDB schema for inventory items
-
 import mongoose from 'mongoose';
-
-// Prevent re-compiling model on every serverless function cold start
-if (mongoose.models.Item) {
-  export default mongoose.model('Item');
-}
 
 const itemSchema = new mongoose.Schema(
   {
@@ -31,7 +24,6 @@ const itemSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Auto-calculate remaining qty and stock status before every save
 itemSchema.pre('save', function (next) {
   this.remainingQuantity = this.quantityReceived - this.usedQuantity;
 
@@ -42,4 +34,6 @@ itemSchema.pre('save', function (next) {
   next();
 });
 
-export default mongoose.model('Item', itemSchema);
+const Item = mongoose.models.Item || mongoose.model('Item', itemSchema);
+
+export default Item;
