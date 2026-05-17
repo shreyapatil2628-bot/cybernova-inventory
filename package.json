@@ -1,0 +1,12 @@
+{
+  "name": "cybernova-inventory",
+  "version": "1.0.0",
+  "description": "CyberNova Inventory Tracker - Full Stack on Vercel",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "mongoose": "^7.0.0",
+    "dotenv": "^16.0.0"
+  }
+}

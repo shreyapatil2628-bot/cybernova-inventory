@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Item — CyberNova Inventory</title>
+  <link rel="stylesheet" href="public/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR (same across all pages) -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">CN</div>
+      <div><h2>CyberNova</h2><span>Inventory Tracker</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main Menu</div>
+      <a href="dashboard.html"  class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="addItem.html"    class="nav-item"><span class="nav-icon">➕</span> Add Item</a>
+      <a href="updateItem.html" class="nav-item"><span class="nav-icon">✏️</span> Update Item</a>
+      <a href="reports.html"    class="nav-item"><span class="nav-icon">📊</span> Reports</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary w-100" id="logoutBtn">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-header">
+      <div class="header-left">
+        <h1>Add New Item</h1>
+        <p>Fill in the form below to add an item to inventory</p>
+      </div>
+      <div class="header-right">
+        <button class="dark-toggle" id="themeToggle"></button>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card" style="max-width:820px">
+
+        <div class="section-header mb-20">
+          <div>
+            <h2>Item Details</h2>
+            <p>Fields marked with <span style="color:var(--danger)">*</span> are required</p>
+          </div>
+        </div>
+
+        <!-- ADD ITEM FORM -->
+        <div class="form-grid" id="addItemForm">
+
+          <!-- Item ID -->
+          <div class="form-group">
+            <label for="itemId">Item ID <span class="required">*</span></label>
+            <input type="text" id="itemId" placeholder="e.g. ITM-001">
+            <span class="error-msg hidden" id="itemIdErr"></span>
+          </div>
+
+          <!-- Item Name -->
+          <div class="form-group">
+            <label for="itemName">Item Name <span class="required">*</span></label>
+            <input type="text" id="itemName" placeholder="e.g. Dell Laptop">
+            <span class="error-msg hidden" id="itemNameErr"></span>
+          </div>
+
+          <!-- Item Type -->
+          <div class="form-group">
+            <label for="itemType">Item Type <span class="required">*</span></label>
+            <select id="itemType">
+              <option value="">— Select Type —</option>
+              <option>Electronics</option>
+              <option>Furniture</option>
+              <option>Stationery</option>
+              <option>Raw Material</option>
+              <option>Finished Goods</option>
+              <option>Consumables</option>
+              <option>Machinery</option>
+              <option>Other</option>
+            </select>
+            <span class="error-msg hidden" id="itemTypeErr"></span>
+          </div>
+
+          <!-- Quantity Received -->
+          <div class="form-group">
+            <label for="quantityReceived">Quantity Received <span class="required">*</span></label>
+            <input type="number" id="quantityReceived" placeholder="e.g. 100" min="1">
+            <span class="error-msg hidden" id="qtyErr"></span>
+          </div>
+
+          <!-- Date Added -->
+          <div class="form-group">
+            <label for="dateAdded">Date Entered <span class="required">*</span></label>
+            <input type="date" id="dateAdded">
+            <span class="error-msg hidden" id="dateErr"></span>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group full-width">
+            <label for="description">Description</label>
+            <textarea id="description" placeholder="Optional: enter item description, specifications, or notes..."></textarea>
+          </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-12 mt-24">
+          <button class="btn btn-primary" id="saveBtn">💾 Save Item</button>
+          <button class="btn btn-secondary" id="resetBtn">🔄 Reset Form</button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="public/js/utils.js"></script>
+<script src="public/js/addItem.js"></script>
+</body>
+</html>

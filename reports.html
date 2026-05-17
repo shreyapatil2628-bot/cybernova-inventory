@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports — CyberNova Inventory</title>
+  <link rel="stylesheet" href="public/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">CN</div>
+      <div><h2>CyberNova</h2><span>Inventory Tracker</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main Menu</div>
+      <a href="dashboard.html"  class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="addItem.html"    class="nav-item"><span class="nav-icon">➕</span> Add Item</a>
+      <a href="updateItem.html" class="nav-item"><span class="nav-icon">✏️</span> Update Item</a>
+      <a href="reports.html"    class="nav-item"><span class="nav-icon">📊</span> Reports</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary w-100" id="logoutBtn">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-header">
+      <div class="header-left">
+        <h1>Inventory Reports</h1>
+        <p>Full stock report with search, filter, and sort</p>
+      </div>
+      <div class="header-right">
+        <button class="dark-toggle" id="themeToggle"></button>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card">
+
+        <!-- Filters Row -->
+        <div class="section-header mb-20">
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search by Item ID or Name...">
+          </div>
+
+          <div class="flex gap-8" style="flex-wrap:wrap">
+            <select id="filterType" style="width:160px">
+              <option value="">All Types</option>
+              <option>Electronics</option>
+              <option>Furniture</option>
+              <option>Stationery</option>
+              <option>Raw Material</option>
+              <option>Finished Goods</option>
+              <option>Consumables</option>
+              <option>Machinery</option>
+              <option>Other</option>
+            </select>
+
+            <select id="filterStatus" style="width:160px">
+              <option value="">All Statuses</option>
+              <option>In Stock</option>
+              <option>Low Stock</option>
+              <option>Out of Stock</option>
+            </select>
+
+            <select id="sortBy" style="width:160px">
+              <option value="">Sort: Newest First</option>
+              <option value="name">Sort: Name A–Z</option>
+              <option value="quantity">Sort: Low Qty First</option>
+              <option value="oldest">Sort: Oldest First</option>
+            </select>
+
+            <button class="btn btn-secondary btn-sm" id="applyFilters">Apply</button>
+            <button class="btn btn-secondary btn-sm" id="resetFilters">Reset</button>
+          </div>
+        </div>
+
+        <!-- Results count -->
+        <p class="text-muted mb-20" id="resultCount">Loading...</p>
+
+        <!-- Table -->
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Item ID</th>
+                <th>Item Name</th>
+                <th>Type</th>
+                <th>Original Qty</th>
+                <th>Used Qty</th>
+                <th>Remaining Qty</th>
+                <th>Date Added</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody">
+              <tr>
+                <td colspan="10" class="text-center text-muted" style="padding:32px">
+                  Loading data...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="public/js/utils.js"></script>
+<script src="public/js/reports.js"></script>
+</body>
+</html>

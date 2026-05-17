@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — CyberNova Inventory</title>
+  <link rel="stylesheet" href="public/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">CN</div>
+      <div>
+        <h2>CyberNova</h2>
+        <span>Inventory Tracker</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main Menu</div>
+      <a href="dashboard.html"   class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="addItem.html"     class="nav-item"><span class="nav-icon">➕</span> Add Item</a>
+      <a href="updateItem.html"  class="nav-item"><span class="nav-icon">✏️</span> Update Item</a>
+      <a href="reports.html"     class="nav-item"><span class="nav-icon">📊</span> Reports</a>
+
+      <div class="nav-label" style="margin-top:16px;">Alerts</div>
+      <a href="reports.html?status=Low+Stock" class="nav-item">
+        <span class="nav-icon">⚠️</span> Low Stock
+        <span class="nav-badge" id="lowStockBadge">0</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary w-100" id="logoutBtn">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main-content">
+
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <h1>Dashboard</h1>
+        <p id="welcomeText">Loading...</p>
+      </div>
+      <div class="header-right">
+        <span style="font-size:13px;color:var(--text-muted)" id="dateText"></span>
+        <button class="dark-toggle" id="themeToggle"></button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <div class="page-content">
+
+      <!-- Low Stock Alert Banner -->
+      <div class="alert-banner warning hidden" id="lowStockBanner">
+        ⚠️ <strong id="alertText">Some items are running low on stock!</strong>
+        &nbsp;
+        <a href="reports.html?status=Low+Stock" style="color:inherit;text-decoration:underline;font-size:13px;">View Items →</a>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon blue">📦</div>
+          <div class="stat-info">
+            <h3 id="statTotal">—</h3>
+            <p>Total Items</p>
+          </div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-icon amber">⚠️</div>
+          <div class="stat-info">
+            <h3 id="statLowStock">—</h3>
+            <p>Low Stock Items</p>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon green">📊</div>
+          <div class="stat-info">
+            <h3 id="statQuantity">—</h3>
+            <p>Total Quantity</p>
+          </div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon purple">🚫</div>
+          <div class="stat-info">
+            <h3 id="statOutOfStock">—</h3>
+            <p>Out of Stock</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Items Table -->
+      <div class="card">
+        <div class="section-header">
+          <div>
+            <h2>Recently Added Items</h2>
+            <p>Last 5 items added to inventory</p>
+          </div>
+          <a href="addItem.html" class="btn btn-primary btn-sm">+ Add New Item</a>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Item ID</th>
+                <th>Item Name</th>
+                <th>Type</th>
+                <th>Qty Received</th>
+                <th>Remaining</th>
+                <th>Date Added</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recentTableBody">
+              <tr>
+                <td colspan="7" class="text-center text-muted" style="padding:32px">
+                  Loading inventory data...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="public/js/utils.js"></script>
+<script src="public/js/dashboard.js"></script>
+</body>
+</html>
